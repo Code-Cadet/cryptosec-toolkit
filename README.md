@@ -7,7 +7,7 @@
 
 ---
 
-**CryptoSec Toolkit (AidConnect Edition)** is a professional cryptographic library designed to secure humanitarian aid distribution for Project AidConnect, developed as a final-year Software Engineering project at USIU-Africa by Benjamin. The toolkit is engineered to defend against OWASP A02:2021 Cryptographic Failures, providing robust, modern, and auditable cryptographic primitives for mission-critical humanitarian contexts.
+**CryptoSec Toolkit (AidConnect Edition)** is a professional cryptographic library designed to secure humanitarian aid distribution for Project AidConnect, developed as a final-year Software Engineering project. The toolkit is engineered to defend against OWASP A02:2021 Cryptographic Failures, providing robust, modern, and auditable cryptographic primitives for mission-critical humanitarian contexts.
 
 ## Architecture Diagram
 
