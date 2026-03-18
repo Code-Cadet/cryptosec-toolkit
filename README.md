@@ -13,11 +13,11 @@
 
 ```mermaid
 flowchart LR
-    A[Plaintext Data] --> B[Argon2id KDF (Key Derivation)]
-    B --> C[AES-256-GCM Encryption]
+    A[Plaintext Data] --> B["Argon2id KDF (Key Derivation)"]
+    B --> C["AES-256-GCM Encryption"]
     C --> D[Encrypted Data]
-    D --> E[RSA-2048 OAEP Encryption]
-    E --> F[Digital Signature (PSS)]
+    D --> E["RSA-2048 OAEP Encryption"]
+    E --> F["Digital Signature (PSS)"]
     F --> G[Secure Package]
 ```
 
