@@ -150,8 +150,6 @@ def run_audit(target_path: str):
         print(f"   ↳ {detail}")
         print(f"   ↳ Recommendation: {rec}\n")
         
-insecure_hash = "MD5"
-        
 if __name__ == "__main__":
     import sys
     import os
