@@ -14,8 +14,8 @@ class CryptoScanner:
             'id': 'SEC-001',
             'pattern': r'\bMD5\b|\bhashlib\.md5\b', # nosec
             'severity': 'CRITICAL',
-            'issue': 'Broken Hash Algorithm (MD5)',
-            'detail': 'MD5 is cryptographically broken and vulnerable to collision attacks.',
+            'issue': 'Broken Hash Algorithm (MD5)', # nosec
+            'detail': 'MD5 is cryptographically broken and vulnerable to collision attacks.', # nosec
             'recommendation': 'Use SHA-256 or SHA-3 for integrity; Argon2id for passwords.'
         },
         {
@@ -124,8 +124,8 @@ def run_audit(target_path: str):
     print(f"--- Scanning: {target_path} ---")
     
     # 1. Run the Environment Audit first
-    # We check the directory of the target path or current directory
-    root_dir = os.path.dirname(os.path.abspath(target_path))
+    # Check the directory of the target path or current directory
+    root_dir = os.getcwd()
     env_results = CryptoScanner.audit_environment(root_dir)
     
     # 2. Run the File Audit
@@ -149,28 +149,54 @@ def run_audit(target_path: str):
         print(f"[{severity}] Line {line}: {issue}")
         print(f"   ↳ {detail}")
         print(f"   ↳ Recommendation: {rec}\n")
-
+        
+insecure_hash = "MD5"
+        
 if __name__ == "__main__":
     import sys
-    # If a path is provided in the terminal, scan that. Otherwise, scan itself.
+    import os
+
     target = sys.argv[1] if len(sys.argv) > 1 else __file__
-    def run_audit_with_exit(path):
-        print(f"--- Scanning: {path} ---")
-        results = CryptoScanner.audit_file(path)
-        # Add env audit here too if needed
-        root_dir = os.path.dirname(os.path.abspath(path))
-        env_results = CryptoScanner.audit_environment(root_dir)
-        all_results = env_results + results
-
-        if not all_results:
-            return True # Success
+    def run_full_audit(path):
+        all_findings = []
         
-        return False # Fail
+        # 1. Environment Audit (Run once for the project root)
+        root_dir = os.getcwd()
+        all_findings.extend(CryptoScanner.audit_environment(root_dir))
 
-    success = run_audit_with_exit(target)
-    
-    # If findings were found, exit with code 1 to block Git
-    if not success:
+        # 2. File(s) Audit
+        files_to_scan = []
+        if os.path.isdir(path):
+            for root, _, files in os.walk(path):
+                for file in files:
+                    if file.endswith(".py"):
+                        files_to_scan.append(os.path.join(root, file))
+        else:
+            files_to_scan.append(path)
+
+        for file_path in files_to_scan:
+            all_findings.extend(CryptoScanner.audit_file(file_path))
+
+        # 3. Report Results
+        if not all_findings:
+            print(f"✅ [CLEAN] Security audit passed for: {path}")
+            return True
+
+        print(f"\n--- ⚠️  Security Audit Findings for: {path} ---")
+        for f in all_findings:
+            severity = f.get('severity', 'UNKNOWN')
+            issue = f.get('issue', 'General Issue')
+            line = f.get('line', 'N/A')
+            detail = f.get('detail', 'No details.')
+            rec = f.get('recommendation', 'No recommendation.')
+
+            print(f"[{severity}] Location: {line} | {issue}")
+            print(f"   ↳ {detail}")
+            print(f"   ↳ Recommendation: {rec}\n")
+        
+        return False
+
+    # Exit with code 1 if findings exist (to block Git)
+    if not run_full_audit(target):
         sys.exit(1)
-    else:
-        sys.exit(0)
+    sys.exit(0)
